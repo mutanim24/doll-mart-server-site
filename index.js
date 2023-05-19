@@ -33,7 +33,7 @@ async function run() {
         const dollsCollection = client.db("dollMart").collection("products");
 
         // find all products
-        app.get('/products', async(req, res) => {
+        app.get('/products', async (req, res) => {
             const result = await dollsCollection.find().toArray();
             res.send(result);
         })
@@ -47,10 +47,30 @@ async function run() {
             res.send(result);
         });
 
-        app.post('/add-product', async(req, res) => {
+
+        // get my-toys
+        app.get('/my-toys', async (req, res) => {
+            let query = {}; 
+            console.log(req.query.email)
+            if (req.query?.email) {
+                query = { "seller.email": req.query.email }
+            }
+            const result = await dollsCollection.find(query).toArray();
+            res.send(result);
+        })
+
+
+        app.post('/add-product', async (req, res) => {
             const body = req.body;
             const result = await dollsCollection.insertOne(body);
             res.send(result)
+        })
+
+        app.delete('/my-toys/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: new ObjectId(id)};
+            const result = await dollsCollection.deleteOne(query);
+            res.send(result);
         })
 
 
