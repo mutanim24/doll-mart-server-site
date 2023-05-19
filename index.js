@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require("cors");
 require('dotenv').config()
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -12,7 +13,7 @@ app.use(express.json());
 // pass: WnDs3y2khxNS0Qyy
 
 
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASS}@cluster0.z12trsh.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -31,19 +32,26 @@ async function run() {
 
         const dollsCollection = client.db("dollMart").collection("products");
 
-        // find all product
+        // find all products
         app.get('/products', async(req, res) => {
             const result = await dollsCollection.find().toArray();
             res.send(result);
         })
 
         // find single product
-        app.get(('/products/:id', async(req, res) => {
+        app.get('/products/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id : new ObjectId(id)};
+            console.log();
+            const query = { _id: new ObjectId(id) };
             const result = await dollsCollection.findOne(query);
-            res.send(result) 
-        }))
+            res.send(result);
+        });
+
+        app.post('/add-product', async(req, res) => {
+            const body = req.body;
+            const result = await dollsCollection.insertOne(body);
+            res.send(result)
+        })
 
 
         // Send a ping to confirm a successful connection
