@@ -41,7 +41,6 @@ async function run() {
         // find single product
         app.get('/products/:id', async (req, res) => {
             const id = req.params.id;
-            console.log();
             const query = { _id: new ObjectId(id) };
             const result = await dollsCollection.findOne(query);
             res.send(result);
@@ -51,7 +50,6 @@ async function run() {
         // get my-toys
         app.get('/my-toys', async (req, res) => {
             let query = {}; 
-            console.log(req.query.email)
             if (req.query?.email) {
                 query = { "seller.email": req.query.email }
             }
@@ -59,10 +57,35 @@ async function run() {
             res.send(result);
         })
 
+        app.get('/update/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = {_id: new ObjectId(id)}
+            const result = await dollsCollection.findOne(query);
+            res.send(result);
+        })
+
 
         app.post('/add-product', async (req, res) => {
             const body = req.body;
             const result = await dollsCollection.insertOne(body);
+            res.send(result)
+        })
+
+        app.put('/update/:id', async(req, res) => {
+            const id = req.params.id;
+            const filter = {_id: new ObjectId(id)};
+            const option = {upsert: true};
+            const updatedData = req.body;
+            const updateDoc = {
+                $set: {
+                    name: updatedData.name,
+                    img: updatedData.img,
+                    price: updatedData.price,
+                    quantity: updatedData.quantity,
+                    description: updatedData.description
+                }
+            }
+            const result = await dollsCollection.updateOne(filter, updateDoc, option);
             res.send(result)
         })
 
