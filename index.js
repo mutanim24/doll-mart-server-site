@@ -43,14 +43,37 @@ async function run() {
 
 
         // get my-toys
-        app.get('/my-toys', async (req, res) => {
-            let query = {}; 
+        // app.get('/my-toys', async (req, res) => {
+            // let query = {}; 
+            // if (req.query?.email) {
+            //     query = { "seller.email": req.query.email }
+            // }
+            // const result = await dollsCollection.find(query).toArray();
+            // res.send(result);
+        // })
+        app.get("/my-toys", async (req, res) => {
+            let query = {};
             if (req.query?.email) {
-                query = { "seller.email": req.query.email }
+              query = { "seller.email": req.query.email };
             }
-            const result = await dollsCollection.find(query).toArray();
-            res.send(result);
-        })
+            const result = await dollsCollection
+              .find(query)
+              .sort({ price: 1 })
+              .toArray();
+            // res.send(result);
+      
+            // Convert the "price" field to a numeric type for correct sorting
+            const sortedResult = result.map((toy) => ({
+              ...toy,
+              price: parseFloat(toy.price),
+            }));
+      
+            // Sort the array based on the numeric "price" field
+            sortedResult.sort((a, b) => a.price - b.price);
+      
+            res.send(sortedResult);
+          });
+          
 
         app.get('/update/:id', async (req, res) => {
             const id = req.params.id;
